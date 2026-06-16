@@ -10,3 +10,6 @@ SUPPORTED_EXTENSIONS = [".txt" , ".md"]
 
 CHUNK_SIZE = 80
 CHUNK_OVERLAP = 20 
+
+CHROMA_DB_DIR = BASE_DIR / "chroma_db"
+COLLECTION_NAME = "vast_collection"
