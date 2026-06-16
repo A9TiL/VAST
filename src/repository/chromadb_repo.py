@@ -40,7 +40,29 @@ class ChromaDBRepository(VectorRepository):
         
     def search(self, query_embedding: List[float], k: int) -> List[Dict[str, Any]]:
         
-        pass
+        """Queries the vector database and returns the top \'k\' closest chunks based on cosine similarity."""
+        
+        raw_results = self.collection.query(
+            query_embeddings=[query_embedding],
+            n_results = k
+        )
+        
+        formatted_results = []
+        
+        if not raw_results['ids'] or not raw_results['ids'][0]:
+            return formatted_results
+        
+        for i in range(len(raw_results['ids'][0])):
+            formatted_results.append(
+                {
+                    "id": raw_results['ids'][0][i],
+                    "text":raw_results['documents'][0][i],
+                    "metadata":raw_results['metadatas'][0][i],
+                    "distance":raw_results['distances'][0][i]
+                }
+            )
+            return formatted_results
+        
     
 if __name__ == "__main__":
     print("[System] Connecting to local ChromaDB...")
