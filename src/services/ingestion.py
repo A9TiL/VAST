@@ -53,4 +53,7 @@ class DocumentDiscovery:
 if __name__ == "__main__":
     discoverer = DocumentDiscovery ()
     docs = discoverer.extract_raw_documents()
-    print(f"\nTotal documents loaded into memory : {len(docs)}")
+    print(f"\nTotal documents loaded into memory : {len(docs)}\n")
+    for doc in docs :
+        print(f"source_file: {doc['source_file']}")
+        print(f"text_content: {doc['raw_text']}\n" + "-"*40)
