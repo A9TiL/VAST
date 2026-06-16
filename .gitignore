@@ -30,3 +30,5 @@ chroma_db/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+seeExising.py

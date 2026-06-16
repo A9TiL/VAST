@@ -36,7 +36,7 @@ class ChromaDBRepository(VectorRepository):
             metadatas= medadatas
         )
         
-        print(f"[Database] Successfully indexed {len(ids)} chunks in t ChromaDB.")
+        print(f"[Database] Successfully indexed {len(ids)} chunks in t0 ChromaDB.")
         
     def search(self, query_embedding: List[float], k: int) -> List[Dict[str, Any]]:
         
