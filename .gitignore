@@ -8,6 +8,7 @@ __pycache__/
 .venv
 venv/
 ENV/
+vast-env/
 
 # Project Specific Data & Vector DB Storage
 data/primary_repo/*

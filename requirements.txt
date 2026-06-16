@@ -1,0 +1,17 @@
+# FastAPI & Server
+fastapi>=0.111
+uvicorn>=0.30
+pydantic>=2.7
+
+# Machine Learning & Vector Math
+sentence-transformers>=3.0
+chromadb>=0.5
+numpy>=1.26
+
+# Testing & Quality Assurance
+pytest>=8.2
+
+
+
+
+
