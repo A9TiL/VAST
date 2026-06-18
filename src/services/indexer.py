@@ -47,10 +47,17 @@ def run_indexing_pipeline():
     
     repo.index_chunks(chunks=all_chunks, embeddings=embeddings.tolist())
     
+    final_count = repo.collection.count()
+    
     print("\n" + "="*50)
     print("PIPELINE EXECUTION COMPLETE")
     print(f"{repo.collection.count()} total items are now secured in the database.")
     print("="*50 + "\n")
+    
+    return{
+        "documents_processed" : len(raw_docs),
+        "total_database_items" : final_count
+    }
     
 if __name__ == "__main__":
     run_indexing_pipeline()
