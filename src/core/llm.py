@@ -17,12 +17,18 @@ class LLMService:
         self.model = "llama-3.1-8b-instant"
         
     def generate_answer(self,query:str,context:str) ->str:
-        """Takes the user's question and the database context, and asks the LLM to write an answer."""
+        """Takes the user's question and the database context, and asks the LLM to write an answer
+        using strict data-extraction guardrails."""
         
         system_instruction = (
-            "You are VAST, an expert technical assistant. "
-            "Use ONLY the provided context to answer the user's question. "
-            "Be concise, direct, and professional."
+            """You are VAST, an enterprise data-extraction assistant.
+        Your sole purpose is to answer the user's question based STRICTLY and EXCLUSIVELY on the provided CONTEXT.
+        
+        CRITICAL RULES:
+        1. You must not use any outside knowledge, pre-training data, or assumptions.
+        2. If the CONTEXT does not contain the answer, or if the CONTEXT is empty, you must reply EXACTLY with: "I'm sorry, but I don't have any documents in my vault to answer about this topic."
+        3. Do not attempt to guess, infer, or provide partial answers outside the text.
+        4. If the context contains the answer, be concise, professional, and directly address the user's question."""
         )
         
         user_message = f"CONTEXT:\n{context}\n\nQUESTION: {query}"
