@@ -2,7 +2,7 @@ import time
 from fastapi import APIRouter,HTTPException
 from src.core.embedding import EmbeddingService
 from src.repository.chromadb_repo import ChromaDBRepository
-from src.api.schemas import SearchRequest,SearchResponse,IndexResponse
+from src.api.schemas import SearchRequest,SearchResponse,IndexResponse,SystemStatsResponse
 from src.services.indexer import run_indexing_pipeline
 
 router =  APIRouter()
@@ -51,3 +51,17 @@ def trigger_indexing_pipeline():
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/stats",response_model=SystemStatsResponse)
+def get_database_statistics():
+    """Returns the real-time data inventory and health metrics from ChromaDB"""
+    
+    try :
+        telemetry = repo.get_system_telemetry()
+        return SystemStatsResponse(
+            status = "healthy",
+            total_chunks = telemetry["total_chunks"],
+            indexed_files = telemetry["indexed_files"]
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500,detail=str(e))

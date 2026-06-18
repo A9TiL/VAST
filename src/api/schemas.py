@@ -22,3 +22,7 @@ class IndexResponse(BaseModel):
     documents_processed : int
     total_database_items : int
     
+class SystemStatsResponse(BaseModel):
+    status : str
+    total_chunks : int
+    indexed_files : List[str]

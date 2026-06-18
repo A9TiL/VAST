@@ -63,6 +63,22 @@ class ChromaDBRepository(VectorRepository):
             )
             return formatted_results
         
+    def get_system_telemetry(self) -> Dict[str,Any]:
+        """Extracts inventory statistics from the active collection."""
+        
+        all_records = self.collection.get(include=["metadatas"])
+        total_chunks = len(all_records["ids"]) if all_records["ids"] else 0
+        
+        unique_files = set()
+        if all_records["metadatas"]:
+            for meta in all_records["metadatas"]:
+                if meta and "source_file" in meta:
+                    unique_files.add(meta["source_file"])
+                    
+        return{
+            "total_chunks" : total_chunks,
+            "indexed_files" : list(unique_files)
+        }
     
 if __name__ == "__main__":
     print("[System] Connecting to local ChromaDB...")
