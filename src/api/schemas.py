@@ -26,3 +26,15 @@ class SystemStatsResponse(BaseModel):
     status : str
     total_chunks : int
     indexed_files : List[str]
+
+# the user sends to the new RAG endpointclass
+class AskRequest(BaseModel):
+    query :str
+
+# what the AI's answer + the files it used
+class AskResponse(BaseModel):
+    query: str
+    answer :str
+    sources : List[str]
+    execution_time_ms : float
+    

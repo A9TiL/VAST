@@ -2,13 +2,15 @@ import time
 from fastapi import APIRouter,HTTPException
 from src.core.embedding import EmbeddingService
 from src.repository.chromadb_repo import ChromaDBRepository
-from src.api.schemas import SearchRequest,SearchResponse,IndexResponse,SystemStatsResponse
+from src.api.schemas import SearchRequest,SearchResponse,IndexResponse,SystemStatsResponse,AskRequest, AskResponse
 from src.services.indexer import run_indexing_pipeline
+from  src.core.llm import LLMService
 
 router =  APIRouter()
 
 embedder = EmbeddingService()
 repo = ChromaDBRepository()
+llm = LLMService()
 
 @router.post("/search",response_model=SearchResponse)
 def perform_semantic_search(request:SearchRequest):
@@ -65,3 +67,41 @@ def get_database_statistics():
         )
     except Exception as e:
         raise HTTPException(status_code=500,detail=str(e))
+    
+@router.post("/ask",response_model=AskResponse)
+def ask_vast_engine(request:AskRequest):
+    """Full RAG Pipeline. Retrives context from ChromaDB and generates an AI answer."""
+    
+    try:
+        start_time = time.time()
+        
+        query_vector = embedder.generate_embeddings(request.query)
+        results = repo.search(query_embedding=query_vector.tolist(),k=3)
+        
+        if not results:
+            return AskResponse(
+                query = request.query,
+                answer = "I'm sorry , but I don't have any documents in my vault to answer about this topic.",
+                sources = [],
+                execution_time = (time.time() - start_time) *1000
+            )
+            
+        context_texts = [item['text'] for item in results]
+        
+        combined_context = "\n\n---\n\n".join(context_texts)
+        
+        sources = list(set([item['metadata'].get('source_file','unknown') for item in results])) 
+        
+        ai_answer = llm.generate_answer(query=request.query,context=combined_context)
+        
+        end_time = time.time()
+        
+        return AskResponse(
+            query = request.query,
+            answer = ai_answer,
+            sources = sources,
+            execution_time_ms = (end_time - start_time) *1000
+        )
+            
+    except Exception as e:
+        HTTPException(status_code=500,detail=str(e))
