@@ -76,7 +76,7 @@ def ask_vast_engine(request:AskRequest):
         start_time = time.time()
         
         query_vector = embedder.generate_embeddings(request.query)
-        results = repo.search(query_embedding=query_vector.tolist(),k=3)
+        results = repo.search(query_embedding=query_vector.tolist(),k=7)
         
         if not results:
             return AskResponse(
@@ -89,6 +89,14 @@ def ask_vast_engine(request:AskRequest):
         context_texts = [item['text'] for item in results]
         
         combined_context = "\n\n---\n\n".join(context_texts)
+        
+        # --- DEBUG BLOCK ---
+        print("\n" + "="*50)
+        print("[DEBUG] THE AI IS READING THIS EXACT CONTEXT:")
+        print("="*50)
+        print(combined_context)
+        print("="*50 + "\n")
+        # ----------------------------
         
         sources = list(set([item['metadata'].get('source_file','unknown') for item in results])) 
         

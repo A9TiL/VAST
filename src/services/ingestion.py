@@ -2,10 +2,11 @@ import os
 from pathlib import Path
 from typing import List,Dict,Any
 from config.settings import PRIMARY_REPO_DIR , SUPPORTED_EXTENSIONS
+from src.core.pdf_parser import PDFExtractor
 
 class DocumentDiscovery:
     '''
-    Handles scanning the local storage layers to locate ,vaidate,and extract raw text fromm target domains.
+    Handles scanning the local storage layers to locate ,vaidate,and extract raw text from target domains.
     '''
     
     def __init__(self,target_dir : Path = PRIMARY_REPO_DIR):
@@ -35,17 +36,29 @@ class DocumentDiscovery:
         
         for path in file_paths :
             try :
-                with open(path,"r" ,encoding="utf-8")  as f :
-                    content = f.read()
-                    
-                document_entry = {
-                    "source_file" : path.name,
-                    "absolute_path" : str(path),
-                    "raw_text" : content
-                }
                 
-                raw_documents.append(document_entry)
-                print(f"[Success] Successfully extracted data from : {path.name}")
+                content = ""
+                
+                if path.suffix.lower() == ".pdf":
+                    content = PDFExtractor.extract_text(str(path))
+                else:
+                    with open(path,"r" ,encoding="utf-8")  as f :
+                        content = f.read()
+                    
+                
+                if content.strip():
+                    document_entry = {
+                        "source_file" : path.name,
+                        "absolute_path" : str(path),
+                        "raw_text" : content
+                    }
+                    
+                    raw_documents.append(document_entry)
+                    print(f"[Success] Successfully extracted data from : {path.name}")
+                    
+                else :
+                    print(f"[Warning] Extracted text was empty for : {path.name}")
+                    
             except Exception as e :
                 print(f"[Error] Failed to read file {path.name} . Reason : {e}")
         return raw_documents
