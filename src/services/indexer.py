@@ -1,5 +1,5 @@
 from src.services.ingestion import DocumentDiscovery
-from src.core.chunker import SlidingWindowChunker
+from src.core.chunker import SemanticChunker
 from src.core.embedding import EmbeddingService
 from src.repository.chromadb_repo import ChromaDBRepository
 from config.settings import CHUNK_SIZE,CHUNK_OVERLAP
@@ -19,16 +19,24 @@ def run_indexing_pipeline():
         return
     
     # chunking
-    print(f"\n[Phase 2] Applying the sliding window chunker...")
-    chunker = SlidingWindowChunker(chunk_size=CHUNK_SIZE,chunk_overlap=CHUNK_OVERLAP)
+    print(f"\n[Phase 2] Applying the Semantic chunker to the documents...")
+    chunker = SemanticChunker(max_chunk_size=1000,overlap_size=200)
     all_chunks = []
     
     for doc in raw_docs :
-        base_metadata = {"source_file" : doc["source_file"]}
-        chunks = chunker.split_text(doc["raw_text"],metadata=base_metadata)
-        all_chunks.extend(chunks)
+        document_chunks = chunker.chunk_text(
+            text= doc["raw_text"],
+            source_metadata={"source_file" : doc["source_file"]}
+        )
+        all_chunks.extend(document_chunks)
         
-    print(f"[Phase 2] Successfully generated {len(all_chunks)} discrete text chunks.")
+        
+    for i, chunk in enumerate(all_chunks):
+        # To create an ID 
+        filename = chunk["metadata"]["source_file"]
+        chunk["chunk_id"] = f"{filename}_chunk_{i}"
+        
+    print(f"[Phase 2] Successfully generated {len(all_chunks)} semantic chunks.")
         
     # Embedding
     print(f"[Phase 3] Generating Dense Vector Enbeddings...")

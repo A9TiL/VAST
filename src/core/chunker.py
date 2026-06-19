@@ -95,6 +95,7 @@ class SemanticChunker:
                     if len(current_chunk) + len(sentence) + 1 > self.max_chunk_size and current_chunk :
                         chunks.append(self._finalize_chunk(current_chunk,source_metadata))
                         current_chunk = self._get_overlap(current_chunk)
+                    current_chunk += sentence + " "
             else:
                 current_chunk += p + '\n\n'
                 
@@ -127,12 +128,12 @@ if __name__ == "__main__":
     mock_metadata = {"source_file" : "test_doc.txt"}
     sample_prose = ("One Two Three Four Five Six Seven Eight Nine Ten " "Eleven Twelve Thirteen Fourteen Fifteen Sixteen Seventeen Eighteen Nineteen Twenty")
     
-    test_chunker = SlidingWindowChunker(chunk_size=10,chunk_overlap=3)
-    resulting_chunks = test_chunker.split_text(sample_prose,mock_metadata)
+    test_chunker = SemanticChunker(max_chunk_size= 10 ,overlap_size=3)
+    resulting_chunks = test_chunker.chunk_text(sample_prose,mock_metadata)
     
     print(f"Generated {len(resulting_chunks)} chunks: \n")
     for chunk in resulting_chunks:
-        print(f"ID: {chunk['chunk_id']}")
+        # print(f"ID: {chunk['chunk_id']}")
         print(f"Content : {chunk['text']}")
         print(f"Metadata : {chunk['metadata']}\n" + "-"*40)
     
