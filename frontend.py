@@ -1,6 +1,7 @@
 import streamlit as st
 import requests 
 import time
+import os
 
 st.set_page_config(
     page_title="VAST Engine",
@@ -8,10 +9,10 @@ st.set_page_config(
     layout="wide"
 )
 
-API_URL = "http://127.0.0.1:8000/api/v1"
+API_URL = os.getenv("BACKEND_URL","http://127.0.0.1:8000/api/v1")
 
 st.title("🧠 VAST Engine")
-st.markdown("Yout Local, Retrieval-Augmentated Generation System.")
+st.markdown("Your Local, Retrieval-Augmentated Generation System.")
 
 with st.sidebar:
     st.header("⚙️ Engine controls")

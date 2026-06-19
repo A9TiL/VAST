@@ -1,0 +1,55 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+venv/
+ENV/
+vast-env/
+
+# Project Specific Data & Vector DB Storage
+data/primary_repo/*
+data/evaluation_repo/*
+chroma_db/
+.chroma/
+*.db
+*.sqlite
+
+# IDEs and editors
+.vscode/
+.idea/
+*.suo
+*.ntvs
+*.njsproj
+*.sln
+*.swp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+seeExising.py
+
+
+# Python Artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv/
+env/
+venv/
+
+# Database & Uploads
+data/chroma_db/
+data/primary_repo/
+*.pdf
+data/evaluation_repo/
+# OS generated files
+.DS_Store
+Thumbs.db
