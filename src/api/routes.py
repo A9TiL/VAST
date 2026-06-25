@@ -1,10 +1,15 @@
 import time
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter,HTTPException , UploadFile , File
 from src.core.embedding import EmbeddingService
 from src.repository.chromadb_repo import ChromaDBRepository
 from src.api.schemas import SearchRequest,SearchResponse,IndexResponse,SystemStatsResponse,AskRequest, AskResponse
 from src.services.indexer import run_indexing_pipeline
 from  src.core.llm import LLMService
+import os
+from config.settings import PRIMARY_REPO_DIR
+from pathlib import Path
+import shutil
+from fastapi.responses import FileResponse
 
 router =  APIRouter()
 
@@ -68,6 +73,23 @@ def get_database_statistics():
     except Exception as e:
         raise HTTPException(status_code=500,detail=str(e))
     
+@router.get("/view/{filename}")
+async def view_raw_file(filename:str):
+    """Securely serves files while completely blocking path traversal."""
+
+    base_dir = Path(PRIMARY_REPO_DIR).resolve()
+    
+    file_path = (base_dir/filename).resolve()
+    
+    print(f"DEBUG: Looking for file at -> {file_path}", flush=True)
+    
+    if not file_path.is_relative_to(base_dir):
+        raise HTTPException(status_code=403,detail="Access Denied : Suspecious path traversal detected.")
+    if not file_path.exists() or not file_path.is_file():
+        raise HTTPException(status_code=404,detail="File not found in the vault.")
+    
+    return FileResponse(path=file_path,filename=filename)
+
 @router.post("/ask",response_model=AskResponse)
 def ask_vast_engine(request:AskRequest):
     """Full RAG Pipeline. Retrives context from ChromaDB and generates an AI answer."""
@@ -113,3 +135,25 @@ def ask_vast_engine(request:AskRequest):
             
     except Exception as e:
         HTTPException(status_code=500,detail=str(e))
+        
+@router.post("/upload")
+async def upload_document(file: UploadFile = File(...)):
+    """Receives a file over the internet and saves it to the vault."""
+    try:
+        
+        os.makedirs(PRIMARY_REPO_DIR, exist_ok=True)
+        
+        
+        save_path = Path(PRIMARY_REPO_DIR) / file.filename
+        
+        
+        with open(save_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        return {
+            "status": "success", 
+            "filename": file.filename, 
+            "message": "File safely landed in the vault! Ready for indexing."
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
