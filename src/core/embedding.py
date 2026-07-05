@@ -1,39 +1,42 @@
+import os
+
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 from sentence_transformers import SentenceTransformer
-from typing import List,Dict,Union
+from typing import List, Dict, Union
 import numpy as np
 
-class EmbeddingService :
+class EmbeddingService:
     '''
-        A singleton wrapper for the local ScentenceTransformer model to guarentee that it is loaded exactly once during the application lifecycle.
+    A singleton wrapper for the local SentenceTransformer model to guarantee that it is loaded exactly once during the application lifecycle.
     '''
         
     _instance = None
     _model = None
     
-    def __new__(cls) :
-        if cls._instance is None :
-            print(f"[System] Initializing VAST Embedding Engine (all-MiliLM-L6-v2)...")
+    def __new__(cls):
+        if cls._instance is None:
+            print(f"[System] Initializing VAST Embedding Engine (all-MiniLM-L6-v2) in Austerity Mode...")
             print(f"[System] This may take a moment on first run to download the weights.")
-            cls._instance = super(EmbeddingService,cls).__new__(cls)
-            cls._model = SentenceTransformer("all-MiniLM-L6-v2")
+            cls._instance = super(EmbeddingService, cls).__new__(cls)
+            
+            cls._model = SentenceTransformer("all-MiniLM-L6-v2", device="cpu")
         return cls._instance
     
-    def generate_embeddings(self,texts:Union[str,List[str]]) -> np.ndarray :
+    def generate_embeddings(self, texts: Union[str, List[str]]) -> np.ndarray:
         """
         Transforms raw text strings into 384-dimensional dense vectors.
+        Uses a strict batch size to prevent Out-Of-Memory (OOM) crashes on constrained servers.
         """
-            
-        return self._model.encode(texts)
-    
+        
+        return self._model.encode(texts, batch_size=8, show_progress_bar=False, convert_to_numpy=True)
     
 if __name__ == "__main__":
-    
     embedder1 = EmbeddingService()
     embedder2 = EmbeddingService()
     
     print("\n--- Architecture Test ---")
     print(f"Are both embedders the exact same object in memory? {embedder1 is embedder2}")
-    
     
     print("\n--- Vector Math Test ---")
     sample_text = "The Traveling Salesperson Problem can be optimized using Branch and Bound."
