@@ -61,7 +61,7 @@ class ChromaDBRepository(VectorRepository):
                     "distance":raw_results['distances'][0][i]
                 }
             )
-            return formatted_results
+        return formatted_results
         
     def get_system_telemetry(self) -> Dict[str,Any]:
         """Extracts inventory statistics from the active collection."""
