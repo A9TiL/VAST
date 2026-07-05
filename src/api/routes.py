@@ -10,6 +10,7 @@ from config.settings import PRIMARY_REPO_DIR
 from pathlib import Path
 import shutil
 from fastapi.responses import FileResponse
+import gc
 
 router =  APIRouter()
 
@@ -50,6 +51,8 @@ def trigger_indexing_pipeline():
         
         if not stats:
             raise HTTPException(status_code=404, detail="No documents found in primary_repo.")
+        
+        gc.collect()
             
         return IndexResponse(
             message="Successfully executed indexing pipeline.",
@@ -65,6 +68,7 @@ def get_database_statistics():
     
     try :
         telemetry = repo.get_system_telemetry()
+        gc.collect()
         return SystemStatsResponse(
             status = "healthy",
             total_chunks = telemetry["total_chunks"],
