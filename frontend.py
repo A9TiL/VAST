@@ -4,7 +4,7 @@ import time
 import os
 import urllib.parse
 import random
-import streamlit.components.v1 as components
+
 
 st.set_page_config(page_title="VAST Engine | NotebookLM", page_icon="🧠", layout="wide")
 
@@ -77,8 +77,6 @@ def inject_keepalive_ping():
     """Injects a silent JS loop to ping the backend every 10 minutes to prevent sleep."""
     ping_url = f"{API_URL.replace('/api/v1', '')}/health"
     
-    
-    # 'no-cors' mode ensures the browser sends the ping even if cross-origin rules apply.
     js_code = f"""
     <script>
         function pingBackend() {{
@@ -90,8 +88,9 @@ def inject_keepalive_ping():
         setInterval(pingBackend, 600000);
     </script>
     """
-
-    components.html(js_code, height=0, width=0)
+    
+    # Updated: Render the script invisibly using the core st.iframe command
+    st.iframe(js_code, height=0)
 
 
 stabilize_backend_connection()
