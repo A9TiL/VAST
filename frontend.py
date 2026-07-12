@@ -3,16 +3,28 @@ import requests
 import time
 import os
 import urllib.parse
+import random
+import streamlit.components.v1 as components
 
 st.set_page_config(page_title="VAST Engine | NotebookLM", page_icon="🧠", layout="wide")
 
+## Backend URL Configuration to be used while local testing .
+# API_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000/api/v1").rstrip("/")
+API_URL = "https://vast-engine-backend.onrender.com/api/v1"
 
-API_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000/api/v1").rstrip("/")
 
+TRIVIA = [
+    "The Traveling Salesperson Problem (TSP) is NP-hard. Even for just 15 cities, there are over 43 billion possible routes to check!",
+    "In 1969, ARPANET sent its first message: 'LO'. It crashed before finishing 'LOGIN'.",
+    "Bubble sort is famously inefficient, but in 2007, former Google CEO Eric Schmidt asked Barack Obama how to sort 1 million integers. Obama joked, 'I think the bubble sort would be the wrong way to go.'",
+    "In digital logic design, the 'worst-case gate delay' determines the maximum clock speed of a processor.",
+    "Game Theory isn't just for economics. Payoff matrices are used to model complex global geopolitics and climate vulnerability scenarios.",
+    "Strassen's algorithm (1969) shocked the math world by proving matrix multiplication could be done faster than the standard O(n³) time.",
+    "The first actual computer 'bug' was a real moth trapped in a relay of the Harvard Mark II calculator in 1947."
+]
 
 def stabilize_backend_connection():
-    """Checks if backend is awake. If sleeping on Render, triggers a warm-up loop."""
-    
+    """Hijacks the UI with an interactive loading screen while waking up the Render backend."""
     health_endpoint = f"{API_URL.replace('/api/v1', '')}/health"
     
     try:
@@ -24,33 +36,67 @@ def stabilize_backend_connection():
         pass 
 
     
-    st.warning("💤 The backend server is currently sleeping (Render Free Tier auto-sleep).")
-    progress_bar = st.progress(0)
-    status_text = st.empty()
+    loading_screen = st.empty()
     
-    
-    max_attempts = 12
-    for attempt in range(max_attempts):
-        percent_complete = int(((attempt + 1) / max_attempts) * 100)
-        progress_bar.progress(percent_complete)
-        status_text.markdown(f"⏳ **Waking up the engine...** Attempt {attempt + 1} of {max_attempts} (This can take ~50 seconds)")
+    with loading_screen.container():
+        st.markdown("## 🧠 VAST Engine is initializing...")
+        st.info("We are spinning up the backend container. This usually takes about **50 seconds** on free cloud tiers.")
         
-        try:
-            res = requests.get(health_endpoint, timeout=5)
-            if res.status_code == 200:
-                status_text.success("🟢 Connected! VAST Engine is fully initialized.")
-                progress_bar.empty()
-                time.sleep(1.5) 
-                status_text.empty()
-                return True
-        except requests.exceptions.RequestException:
-            time.sleep(5) 
+        progress_bar = st.progress(0)
+        
+        
+        status_text = st.empty()
+        st.divider()
+        fact_title = st.markdown("### 💡 While you wait:")
+        fact_text = st.empty()
+        
+        max_attempts = 15
+        for attempt in range(max_attempts):
             
-    st.error("🚨 Cloud Engine Timeout: The backend failed to boot up in time. Please refresh or check your Render logs.")
-    st.stop()
+            percent = int(((attempt + 1) / max_attempts) * 100)
+            progress_bar.progress(percent)
+            
+            
+            fact_text.markdown(f"*{random.choice(TRIVIA)}*")
+            status_text.markdown(f"⏳ **Pinging server...** (Attempt {attempt + 1}/{max_attempts})")
+            
+            try:
+                res = requests.get(health_endpoint, timeout=4)
+                if res.status_code == 200:
+                    status_text.success("🟢 Connection established! Entering VAST Engine...")
+                    time.sleep(1.5) 
+                    break 
+            except requests.exceptions.RequestException:
+                time.sleep(4)
+                
+   
+    loading_screen.empty()
+    
+    
+def inject_keepalive_ping():
+    """Injects a silent JS loop to ping the backend every 10 minutes to prevent sleep."""
+    ping_url = f"{API_URL.replace('/api/v1', '')}/health"
+    
+    
+    # 'no-cors' mode ensures the browser sends the ping even if cross-origin rules apply.
+    js_code = f"""
+    <script>
+        function pingBackend() {{
+            fetch('{ping_url}', {{ mode: 'no-cors' }})
+                .then(() => console.log('Backend heartbeat sent.'))
+                .catch(err => console.error('Heartbeat failed:', err));
+        }}
+        // Set the timer to ping every 10 minutes
+        setInterval(pingBackend, 600000);
+    </script>
+    """
+
+    components.html(js_code, height=0, width=0)
 
 
 stabilize_backend_connection()
+
+inject_keepalive_ping()
 
 
 st.title("🧠 VAST Engine")
