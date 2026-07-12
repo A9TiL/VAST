@@ -84,13 +84,13 @@ def inject_keepalive_ping():
                 .then(() => console.log('Backend heartbeat sent.'))
                 .catch(err => console.error('Heartbeat failed:', err));
         }}
-        // Set the timer to ping every 10 minutes
+        // Set the timer to ping every 10 minutes (600,000 milliseconds)
         setInterval(pingBackend, 600000);
     </script>
     """
     
-    # Updated: Render the script invisibly using the core st.iframe command
-    st.iframe(js_code, height=0)
+    # Injects the script directly into the DOM without an iframe wrapper!
+    st.html(js_code)
 
 
 stabilize_backend_connection()
