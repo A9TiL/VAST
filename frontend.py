@@ -28,14 +28,14 @@ def stabilize_backend_connection():
     health_endpoint = f"{API_URL.replace('/api/v1', '')}/health"
     
     try:
-        
+        # Initial quick check. If awake, skip the loading screen entirely.
         res = requests.get(health_endpoint, timeout=2)
         if res.status_code == 200:
             return True
     except requests.exceptions.RequestException:
-        pass 
+        pass  # Backend is sleeping. Initiate the interactive wake-up screen!
 
-    
+    # Create an empty container that we will completely erase later
     loading_screen = st.empty()
     
     with loading_screen.container():
@@ -44,7 +44,7 @@ def stabilize_backend_connection():
         
         progress_bar = st.progress(0)
         
-        
+        # Placeholders for our changing text
         status_text = st.empty()
         st.divider()
         fact_title = st.markdown("### 💡 While you wait:")
@@ -69,33 +69,12 @@ def stabilize_backend_connection():
             except requests.exceptions.RequestException:
                 time.sleep(4)
                 
-   
+
     loading_screen.empty()
-    
-    
-def inject_keepalive_ping():
-    """Injects a silent JS loop to ping the backend every 10 minutes to prevent sleep."""
-    ping_url = f"{API_URL.replace('/api/v1', '')}/health"
-    
-    js_code = f"""
-    <script>
-        function pingBackend() {{
-            fetch('{ping_url}', {{ mode: 'no-cors' }})
-                .then(() => console.log('Backend heartbeat sent.'))
-                .catch(err => console.error('Heartbeat failed:', err));
-        }}
-        // Set the timer to ping every 10 minutes (600,000 milliseconds)
-        setInterval(pingBackend, 600000);
-    </script>
-    """
-    
-    # Injects the script directly into the DOM without an iframe wrapper!
-    st.html(js_code)
 
 
 stabilize_backend_connection()
 
-inject_keepalive_ping()
 
 
 st.title("🧠 VAST Engine")
