@@ -8,89 +8,59 @@ import random
 
 st.set_page_config(page_title="VAST Engine | NotebookLM", page_icon="🧠", layout="wide")
 
-## Backend URL Configuration to be used while local testing .
-# API_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000/api/v1").rstrip("/")
 API_URL = "https://vast-engine-backend.onrender.com/api/v1"
+ROOT_URL = "https://vast-engine-backend.onrender.com"
 
 
-TRIVIA = [
-    "The Traveling Salesperson Problem (TSP) is NP-hard. Even for just 15 cities, there are over 43 billion possible routes to check!",
-    "In 1969, ARPANET sent its first message: 'LO'. It crashed before finishing 'LOGIN'.",
-    "Bubble sort is famously inefficient, but in 2007, former Google CEO Eric Schmidt asked Barack Obama how to sort 1 million integers. Obama joked, 'I think the bubble sort would be the wrong way to go.'",
-    "In digital logic design, the 'worst-case gate delay' determines the maximum clock speed of a processor.",
-    "Game Theory isn't just for economics. Payoff matrices are used to model complex global geopolitics and climate vulnerability scenarios.",
-    "Strassen's algorithm (1969) shocked the math world by proving matrix multiplication could be done faster than the standard O(n³) time.",
-    "The first actual computer 'bug' was a real moth trapped in a relay of the Harvard Mark II calculator in 1947."
-]
+if "backend_active" not in st.session_state:
+    st.session_state.backend_active = False
 
-def stabilize_backend_connection():
-    """Hijacks the UI with an interactive loading screen while waking up the Render backend."""
-    
-    root_backend_url = "https://vast-engine-backend.onrender.com"
-    health_endpoint = f"{root_backend_url}"
-    
+def check_backend_status():
+    """Fires a single ping to the root URL. A 404 means FastAPI is awake!"""
     try:
-       
-        res = requests.get(health_endpoint, timeout=2)
-        if res.status_code == 200:
+        res = requests.get(ROOT_URL, timeout=3)
+
+        if res.status_code == 404: 
             return True
     except requests.exceptions.RequestException:
-        pass 
+        pass
+    return False
 
+
+if not st.session_state.backend_active:
+    is_live = check_backend_status()
     
-    loading_screen = st.empty()
-    
-    with loading_screen.container():
-        st.markdown("## 🧠 VAST Engine is initializing...")
-        st.info("We are spinning up the backend container. This usually takes about **50 seconds** on free cloud tiers.")
+    if is_live:
+
+        st.session_state.backend_active = True
+        st.rerun() 
+    else:
+       
+        st.markdown("## 🧠 VAST Engine is currently offline.")
+        st.warning("The cloud server is sleeping to save resources. Please hold on while we spin it up!")
+        st.markdown("This page will automatically refresh every 5 seconds until the backend goes live.")
         
+        st.write("")
         
+       
         st.markdown(
-            f'💡 **Backend taking too long?** Click the button below to force a manual wake-up in a new tab. '
-            f'Once the new tab displays a message or finishes loading, you can close it and return here!'
-        )
-        
-        st.markdown(
-            f'<a href="{root_backend_url}" target="_blank" style="'
+            f'<a href="{ROOT_URL}" target="_blank" style="'
             f'text-decoration: none; padding: 0.5rem 1rem; border-radius: 0.5rem; '
             f'background-color: #FF4B4B; color: white; font-weight: bold; display: inline-block;'
-            f'">🚀 Manually Kickstart Backend Container</a>', 
+            f'">🚀 Manually Trigger Backend</a>', 
             unsafe_allow_html=True
         )
-        st.write("") 
+        st.markdown("*Note: Clicking this will open a new tab. Once it says 'Not Found', you can close it and return here.*")
         
-        progress_bar = st.progress(0)
+        st.write("")
         
-        
-        status_text = st.empty()
-        st.divider()
-        st.markdown("### 💡 While you wait:")
-        fact_text = st.empty()
-        
-        max_attempts = 15
-        for attempt in range(max_attempts):
-            
-            percent = int(((attempt + 1) / max_attempts) * 100)
-            progress_bar.progress(percent)
+
+        with st.spinner("Waiting for backend container to boot..."):
+            time.sleep(5) 
+            st.rerun()    
             
 
-            fact_text.markdown(f"*{random.choice(TRIVIA)}*")
-            status_text.markdown(f"⏳ **Pinging server...** (Attempt {attempt + 1}/{max_attempts})")
-            
-            try:
-                res = requests.get(health_endpoint, timeout=4)
-                if res.status_code == 200:
-                    status_text.success("🟢 Connection established! Entering VAST Engine...")
-                    time.sleep(1.5) 
-                    break
-            except requests.exceptions.RequestException:
-                time.sleep(4) 
-                
-   
-    loading_screen.empty()
-
-
-stabilize_backend_connection()
+        st.stop()
 
 
 
