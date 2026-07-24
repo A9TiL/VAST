@@ -155,11 +155,11 @@ $$
 $$
 
 **Where:**
-*   $\vec{q} \rightarrow$ Query embedding vector
-*   $\vec{d} \rightarrow$ Document embedding vector
-*   $\vec{q} \cdot \vec{d} \rightarrow$ Dot product between the query and document vectors
-*   $\|\vec{q}\| \rightarrow$ Euclidean ($L_2$) norm of the query vector
-*   $\|\vec{d}\| \rightarrow$ Euclidean ($L_2$) norm of the document vector
+*   **`q`** → Query embedding vector
+*   **`d`** → Document embedding vector
+*   **`q · d`** → Dot product between the query and document vectors
+*   **`||q||`** → Euclidean (L₂) norm of the query vector
+*   **`||d||`** → Euclidean (L₂) norm of the document vector
 
 ---
 
