@@ -1,19 +1,19 @@
-<p align="center">
+<div align="center">
 
 # VAST Engine
 
 *An enterprise-grade, local-first RAG infrastructure designed to process, index, and semantically search dense textual knowledge spaces without relying on external cloud APIs or proprietary black-box frameworks.*
 
-<p>
-  <img src="https://img.shields.io/badge/Python-3.11-blue?logo=python" />
-  <img src="https://img.shields.io/badge/FastAPI-0.111-green?logo=fastapi" />
-  <img src="https://img.shields.io/badge/Streamlit-UI-ff4b4b?logo=streamlit" />
-  <img src="https://img.shields.io/badge/ChromaDB-VectorDB-6f42c1" />
-  <img src="https://img.shields.io/badge/PyTorch-DeepLearning-ee4c2c?logo=pytorch" />
-  <img src="https://img.shields.io/badge/Deploy-Render-46E3B7?logo=render" />
-</p>
+<br>
 
-</p>
+[![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)](#)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-green?logo=fastapi)](#)
+[![Streamlit](https://img.shields.io/badge/Streamlit-UI-ff4b4b?logo=streamlit)](#)
+[![ChromaDB](https://img.shields.io/badge/ChromaDB-VectorDB-6f42c1)](#)
+[![PyTorch](https://img.shields.io/badge/PyTorch-DeepLearning-ee4c2c?logo=pytorch)](#)
+[![Render](https://img.shields.io/badge/Deploy-Render-46E3B7?logo=render)](#)
+
+</div>
 
 ---
 
@@ -142,29 +142,24 @@ Receiving a **404 HTTP response** confirms that FastAPI has fully initialized, a
 
 ---
 
-# Mathematical Foundations
+## Mathematical Foundations
 
-Traditional search engines rely primarily on **lexical keyword matching** (for example, **BM25**), where retrieval quality depends on exact token overlap between the query and indexed documents.
+Traditional search engines rely primarily on **lexical keyword matching** (e.g., BM25), where retrieval depends on exact token overlap.
 
-VAST instead represents text as **dense semantic vectors**, allowing conceptually related content to be retrieved even when the wording differs significantly.
+VAST instead represents text as **dense semantic vectors**, enabling semantic retrieval beyond keyword matching.
 
-Document relevance is computed using **Cosine Similarity**.
+The similarity between a query vector and a document vector is computed using **Cosine Similarity**:
 
 $$
-\operatorname{CosineSimilarity}(q,d)=
-\frac{q\cdot d}
-{\|q\|_2\|d\|_2}
+\text{Cosine}(\vec{q}, \vec{d}) = \frac{\vec{q} \cdot \vec{d}}{\|\vec{q}\| \times \|\vec{d}\|}
 $$
 
-Where:
-
-- $q$ = Query embedding vector
-- $d$ = Document embedding vector
-- $q \cdot d$ = Dot product between vectors
-- $\|q\|_2$ = Euclidean (L2) norm of the query vector
-- $\|d\|_2$ = Euclidean (L2) norm of the document vector
-
-Higher cosine similarity indicates stronger semantic relevance between the query and retrieved document.
+**Where:**
+*   $\vec{q} \rightarrow$ Query embedding vector
+*   $\vec{d} \rightarrow$ Document embedding vector
+*   $\vec{q} \cdot \vec{d} \rightarrow$ Dot product between the query and document vectors
+*   $\|\vec{q}\| \rightarrow$ Euclidean ($L_2$) norm of the query vector
+*   $\|\vec{d}\| \rightarrow$ Euclidean ($L_2$) norm of the document vector
 
 ---
 
@@ -207,7 +202,7 @@ VAST-Engine/
 ## 1. Clone Repository
 
 ```bash
-git clone https://github.com/<username>/VAST-Engine.git
+git clone https://github.com/A9TiL/VAST-Engine.git
 
 cd VAST-Engine
 
