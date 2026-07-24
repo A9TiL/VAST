@@ -150,19 +150,19 @@ VAST instead represents text as **dense semantic vectors**, allowing conceptuall
 
 Document relevance is computed using **Cosine Similarity**.
 
-\[
+$$
 \operatorname{CosineSimilarity}(q,d)=
 \frac{q\cdot d}
 {\|q\|_2\|d\|_2}
-\]
+$$
 
 Where:
 
-- \(q\) = Query embedding vector
-- \(d\) = Document embedding vector
-- \(q \cdot d\) = Dot product between vectors
-- \(\|q\|_2\) = Euclidean (L2) norm of the query vector
-- \(\|d\|_2\) = Euclidean (L2) norm of the document vector
+- $q$ = Query embedding vector
+- $d$ = Document embedding vector
+- $q \cdot d$ = Dot product between vectors
+- $\|q\|_2$ = Euclidean (L2) norm of the query vector
+- $\|d\|_2$ = Euclidean (L2) norm of the document vector
 
 Higher cosine similarity indicates stronger semantic relevance between the query and retrieved document.
 
